@@ -7,14 +7,14 @@ const inventorySchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    name: {
+        type: String,
+        required: true
+    },
     quantity: {
         type: Number,
         required: true,
         default: 100
-    },
-    name: {
-        type: String,
-        required: true
     }
 }, {
     timestamps: true

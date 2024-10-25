@@ -4,27 +4,44 @@ import { parseCsv } from "../utils/parseCsv.utils.js";
 
 export const processPurchaseFile = async (req, res) => {
     try {
-        const data = parseCsv(req.file.path);
-        for (const row of data) {
-            const { ItemID, ItemName, QuantityPurchased } = row;
+        const data = await parseCsv(req.file.path);  // Make sure to await if parseCsv is async
+        console.log("Parsed Data:", data); // Log the parsed data to see its structure
 
-            let inventoryItem = await Inventory.findOne({ itemId: ItemID });
+        for (const row of data) {
+            // Log each row to see what we're processing
+            console.log("Processing row:", row);
+
+            // Parse the quantity as an integer
+            const quantityPurchased = parseInt(row.QuantityPurchased);
+
+            // Validate the data
+            if (!row.ItemID || !row.ItemName || isNaN(quantityPurchased)) {
+                throw new Error(`Invalid data in row: ${JSON.stringify(row)}`);
+            }
+
+            let inventoryItem = await Inventory.findOne({ itemId: row.ItemID });
             if (inventoryItem) {
-                inventoryItem.quantity += QuantityPurchased;
+                console.log(`Updating existing item ${row.ItemID}`);
+                inventoryItem.quantity += quantityPurchased;
             } else {
+                console.log(`Creating new item ${row.ItemID}`);
                 inventoryItem = new Inventory({
-                    itemId: ItemID,
-                    itemName: ItemName,
-                    quantity: QuantityPurchased
+                    itemId: row.ItemID,
+                    name: row.ItemName,  // Make sure this matches your schema
+                    quantity: quantityPurchased
                 });
             }
             await inventoryItem.save();
+            console.log(`Saved item ${row.ItemID} successfully`);
         }
 
-        fs.unlinkSync(req.file.path); // Delete file after processing
-        res.send("Purchase data processed and inventory updated.");
+        fs.unlinkSync(req.file.path);
+        res.send({
+            message: "Purchase data processed and inventory updated successfully",
+            processedItems: data.length
+        });
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Error processing purchase file.");
+        console.error("Detailed error:", err);
+        res.status(500).send(`Error processing purchase file: ${err.message}`);
     }
 };
