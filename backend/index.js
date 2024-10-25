@@ -3,6 +3,15 @@ import multer from 'multer';
 import XLSX from 'xlsx';
 import mongoose from 'mongoose';
 import fs from 'fs';
+import { connectDb } from "./data/database.js";
+import { config } from "dotenv";
+import cors from "cors";
+
+config({
+    path:"./data/config.env"
+});
+
+connectDb();
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -23,14 +32,6 @@ const basketSchema = new mongoose.Schema({
 const Inventory = mongoose.model('Inventory', inventorySchema);
 const Basket = mongoose.model('Basket', basketSchema);
 
-// Connect to MongoDB
-mongoose.connect('mongodb+srv://node_boy:nodeboy123@cluster0.ijcor.mongodb.net/?retryWrites=true',{
-    dbName:"MumbaiHacks",
-}).then(()=>{
-    console.log("Database Connected");
-}).catch((e)=>{
-    console.log(e);
-})
 
 // Helper function to parse Excel files and convert to JSON
 function parseExcel(filePath) {
@@ -110,4 +111,4 @@ app.post('/upload/sales', upload.single('file'), async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(process.env.PORT, () => console.log(`Server running on http://localhost:${process.env.PORT}`));
