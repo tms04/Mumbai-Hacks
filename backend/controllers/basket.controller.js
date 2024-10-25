@@ -3,6 +3,20 @@ import { Basket } from "../models/basket.model.js";
 import fs from 'fs';
 import { parseCsv } from "../utils/parseCsv.utils.js";  // Import the CSV parser
 
+export const getAllBaskets= async (req,res) =>{
+    try {
+        const baskets = await Basket.find().populate('saleId items saleDate');
+        res.status(200).json({
+        success:true,
+        data:baskets
+    })
+    }
+    catch (err) {
+        console.error("Error: ", err.message); // Log the error message
+        res.status(500).send("Error processing sales file: " + err.message);
+    }
+}
+
 export const processSalesFile = async (req, res) => {
     try {
         const data = await parseCsv(req.file.path);  // Use the CSV parser
