@@ -2,6 +2,20 @@ import { Inventory } from "../models/inventory.model.js";
 import fs from 'fs';
 import { parseCsv } from "../utils/parseCsv.utils.js";
 
+export const getMyInventory=async(req,res)=>{
+    try{
+        const inventory=await Inventory.find({}).select('itemId name quantity');
+        res.status(200).json({
+        success:true,
+        data:inventory
+    })
+    }
+    catch(err){
+        console.error("Detailed error:", err);
+        res.status(500).send(`Error processing purchase file: ${err.message}`);
+    }
+};
+
 export const processPurchaseFile = async (req, res) => {
     try {
         const data = await parseCsv(req.file.path);  // Make sure to await if parseCsv is async

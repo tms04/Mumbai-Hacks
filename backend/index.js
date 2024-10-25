@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { connectDb } from "./data/database.js";
 import { config } from "dotenv";
-// import cors from "cors";
+import cors from "cors";
 import basketRoutes from "./routes/basket.routes.js";
 import inventoryRoutes from "./routes/inventory.routes.js";
 import morgan from 'morgan';
@@ -15,6 +15,7 @@ connectDb();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 app.use(morgan('dev'));
 const upload = multer({ dest: 'uploads/' });
 

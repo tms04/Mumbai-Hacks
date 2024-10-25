@@ -1,10 +1,11 @@
 import express from 'express';
 import multer from 'multer';
-import { processPurchaseFile } from '../controllers/inventory.controllers.js';
+import { processPurchaseFile,getMyInventory } from '../controllers/inventory.controllers.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 router.post('/upload/purchase', upload.single('file'), processPurchaseFile);
+router.get('/get/allItems',getMyInventory);
 
 export default router;
