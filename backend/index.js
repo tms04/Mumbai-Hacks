@@ -1,27 +1,27 @@
-const express = require('express');
-const multer = require('multer');
-const XLSX = require('xlsx');
-const mongoose = require('mongoose');
-const fs = require('fs');
+import express from 'express';
+import multer from 'multer';
+import XLSX from 'xlsx';
+import mongoose from 'mongoose';
+import fs from 'fs';
 
 const app = express();
-const upload = multer({ dest: 'uploads/' }); // Temporary storage for uploaded files
+const upload = multer({ dest: 'uploads/' });
 
 // MongoDB Schemas
-const InventorySchema = new mongoose.Schema({
+const inventorySchema = new mongoose.Schema({
     itemId: String,
     itemName: String,
     quantity: Number
 });
 
-const BasketSchema = new mongoose.Schema({
+const basketSchema = new mongoose.Schema({
     saleId: String,
     items: [{ itemId: String, quantity: Number }],
     saleDate: Date
 });
 
-const Inventory = mongoose.model('Inventory', InventorySchema);
-const Basket = mongoose.model('Basket', BasketSchema);
+const Inventory = mongoose.model('Inventory', inventorySchema);
+const Basket = mongoose.model('Basket', basketSchema);
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/yourdbname', {
