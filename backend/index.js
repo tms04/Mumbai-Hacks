@@ -24,10 +24,13 @@ const Inventory = mongoose.model('Inventory', inventorySchema);
 const Basket = mongoose.model('Basket', basketSchema);
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/yourdbname', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log("Connected to MongoDB"));
+mongoose.connect('mongodb+srv://node_boy:nodeboy123@cluster0.ijcor.mongodb.net/?retryWrites=true',{
+    dbName:"MumbaiHacks",
+}).then(()=>{
+    console.log("Database Connected");
+}).catch((e)=>{
+    console.log(e);
+})
 
 // Helper function to parse Excel files and convert to JSON
 function parseExcel(filePath) {
