@@ -1,127 +1,126 @@
 import React, { useState } from "react";
-import { FileUploader } from "react-drag-drop-files";
+import axios from "axios";
 
-const fileTypes = ["CSV"]; // Specify CSV as the only file type
+const Uploads = () => {
+  const [purchaseFile, setPurchaseFile] = useState(null);
+  const [salesFile, setSalesFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState({ purchase: "", sales: "" });
 
-function Upload() {
-  const [salesFiles, setSalesFiles] = useState([]);
-  const [purchaseFiles, setPurchaseFiles] = useState([]);
+  const handleFileChange = (event, type) => {
+    const selectedFile = event.target.files[0];
 
-  const handleSalesChange = (newFile) => {
-    if (salesFiles.length < 2) {
-      setSalesFiles((prevFiles) => [...prevFiles, newFile]);
-    } else {
-      alert("You can only upload a maximum of 2 sales files.");
+    if (selectedFile && selectedFile.type !== "text/csv") {
+      alert("Please select a .csv file.");
+      return;
+    }
+
+    if (type === "purchase") {
+      setPurchaseFile(selectedFile);
+    } else if (type === "sales") {
+      setSalesFile(selectedFile);
     }
   };
 
-  const handlePurchaseChange = (newFile) => {
-    if (purchaseFiles.length < 2) {
-      setPurchaseFiles((prevFiles) => [...prevFiles, newFile]);
-    } else {
-      alert("You can only upload a maximum of 2 purchase files.");
+  const handleUpload = async (file, type) => {
+    if (!file) {
+      alert(`Please select a ${type} file first.`);
+      return;
     }
-  };
 
-  const handleRemoveSales = (fileToRemove) => {
-    setSalesFiles(salesFiles.filter((file) => file !== fileToRemove));
-  };
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const handleRemovePurchase = (fileToRemove) => {
-    setPurchaseFiles(purchaseFiles.filter((file) => file !== fileToRemove));
-  };
+    try {
+      const endpoint =
+        type === "purchase"
+          ? "http://localhost:4000/inventory/upload/purchase"
+          : "http://localhost:4000/basket/upload/sales";
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Sales files submitted:", salesFiles);
-    console.log("Purchase files submitted:", purchaseFiles);
-    alert("Files submitted successfully!");
-  };
+      const response = await axios.post(endpoint, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-  const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    padding: '20px',
-  };
-
-  const titleStyle = {
-    fontSize: '24px',
-    marginBottom: '20px',
-  };
-
-  const uploaderStyle = {
-    width: '400px',
-    height: '200px',
-    border: '2px dashed #007BFF',
-    borderRadius: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '20px',
-  };
-
-  const fileListStyle = {
-    marginTop: '20px',
-  };
-
-  const submitButtonStyle = {
-    padding: '10px 20px',
-    fontSize: '16px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
+      setUploadStatus((prevStatus) => ({
+        ...prevStatus,
+        [type]: `Upload successful: ${response.data.message}`,
+      }));
+    } catch (error) {
+      setUploadStatus((prevStatus) => ({
+        ...prevStatus,
+        [type]: `Upload failed: ${
+          error.response ? error.response.data.error : error.message
+        }`,
+      }));
+    }
   };
 
   return (
-    <div style={containerStyle}>
-      <h1 style={titleStyle}>Upload Your CSV Files</h1>
+    <div
+      style={{
+        padding: "20px",
+        maxWidth: "600px",
+        margin: "0 auto",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+      }}
+    >
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+        Upload Files
+      </h2>
 
-      {/* Sales Upload Section */}
-      <h2>Sales Files</h2>
-      <div style={uploaderStyle}>
-        <FileUploader
-          handleChange={handleSalesChange}
-          name="salesFile"
-          types={fileTypes}
-          multiple
+      <div style={{ marginBottom: "15px" }}>
+        <label style={{ display: "block", fontWeight: "bold" }}>
+          Purchase File (.csv):
+        </label>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileChange(e, "purchase")}
         />
-      </div>
-      <div style={fileListStyle}>
-        {salesFiles.map((file, index) => (
-          <div key={index}>
-            {file.name}{" "}
-            <button onClick={() => handleRemoveSales(file)}>Remove</button>
-          </div>
-        ))}
+        <button
+          onClick={() => handleUpload(purchaseFile, "purchase")}
+          style={{
+            display: "block",
+            marginTop: "10px",
+            padding: "8px 16px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+          }}
+        >
+          Upload Purchase File
+        </button>
+        <p style={{ color: "green" }}>{uploadStatus.purchase}</p>
       </div>
 
-      {/* Purchase Upload Section */}
-      <h2>Purchase Files</h2>
-      <div style={uploaderStyle}>
-        <FileUploader
-          handleChange={handlePurchaseChange}
-          name="purchaseFile"
-          types={fileTypes}
-          multiple
+      <div style={{ marginBottom: "15px" }}>
+        <label style={{ display: "block", fontWeight: "bold" }}>
+          Sales File (.csv):
+        </label>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileChange(e, "sales")}
         />
+        <button
+          onClick={() => handleUpload(salesFile, "sales")}
+          style={{
+            display: "block",
+            marginTop: "10px",
+            padding: "8px 16px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+          }}
+        >
+          Upload Sales File
+        </button>
+        <p style={{ color: "green" }}>{uploadStatus.sales}</p>
       </div>
-      <div style={fileListStyle}>
-        {purchaseFiles.map((file, index) => (
-          <div key={index}>
-            {file.name}{" "}
-            <button onClick={() => handleRemovePurchase(file)}>Remove</button>
-          </div>
-        ))}
-      </div>
-
-      <button style={submitButtonStyle} onClick={handleSubmit}>Submit</button>
     </div>
   );
-}
+};
 
-export default Upload;
+export default Uploads;
