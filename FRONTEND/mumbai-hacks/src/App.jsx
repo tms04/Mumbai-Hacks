@@ -8,6 +8,7 @@ import Pricing from "./components/Pricing";
 import Roadmap from "./components/Roadmap";
 import Services from "./components/Services";
 import Upload from "./components/uploads";
+import PredictionDisplay from "./components/PredictionDisplay";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Pricing />
         <Roadmap />
         <Upload />
+        <PredictionDisplay />
         <Footer />
       </div>
 

@@ -1,6 +1,18 @@
 import { Inventory } from "../models/inventory.model.js";
 import fs from 'fs';
 import { parseCsv } from "../utils/parseCsv.utils.js";
+// backend/controllers/inventory.controller.js
+import { generatePrediction } from '../utils/predictor.js';
+
+export const getPrediction = async (req, res) => {
+  try {
+    const prediction = await generatePrediction();
+    res.status(200).json({ prediction });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate prediction" });
+  }
+};
+
 
 export const getMyInventory=async(req,res)=>{
     try{
