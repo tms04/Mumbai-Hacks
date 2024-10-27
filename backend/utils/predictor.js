@@ -1,8 +1,12 @@
+import dotenv from 'dotenv';
 import axios from 'axios';  // Import axios for HTTP requests
 import Groq from "groq-sdk";
 
+// Load environment variables from the custom config.env file
+dotenv.config({ path: './data/config.env' });
+
 // Initialize GROQ client
-const groq = new Groq({ apiKey: "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" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // Function to load transaction history from backend using a GET request
 async function loadTransactionHistory() {
